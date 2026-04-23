@@ -1,0 +1,228 @@
+NameError                                 Traceback (most recent call last)
+/tmp/ipykernel_2374/1123135925.py in <cell line: 0>()
+----> 1 plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], marker='x',s=30,c='red')
+
+NameError: name 'plt' is not defined
+NameError                                 Traceback (most recent call last)
+/tmp/ipykernel_2374/1123135925.py in <cell line: 0>()
+----> 1 plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], marker='x',s=30,c='red')
+
+NameError: name 'plt' is not definedNameError                                 Traceback (most recent call last)
+/tmp/ipykernel_2374/1123135925.py in <cell line: 0>()
+----> 1 plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], marker='x',s=30,c='red')
+
+NameError: name 'plt' is not definedNameError                                 Traceback (most recent call last)
+/tmp/ipykernel_2374/1123135925.py in <cell line: 0>()
+----> 1 plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], marker='x',s=30,c='red')
+
+NameError: name 'plt' is not defined
+
+
+
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+
+data = pd.read_csv("Student_Performance.csv")
+
+data.groupby("Extracurricular Activities")['Performance Index'].mean().plot(kind='bar')
+plt.show()
+
+sns.heatmap(data=data.corr(), annot=True)
+plt.show()
+
+data.drop('Extracurricular Activities', axis=1, inplace=True)
+
+y = data['Performance Index']
+X = data[['Hours Studied', 'Previous Scores']]
+
+X_sm = sm.add_constant(X)
+model = sm.OLS(y, X_sm).fit()
+
+fig = plt.figure(figsize=(10, 10))
+sm.graphics.plot_partregress_grid(model, fig=fig)
+plt.show()
+
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+
+data = pd.read_csv("50_Startups.csv")
+
+data = pd.get_dummies(data=data, columns=['State'], drop_first=True)
+data[['State_Florida', 'State_New York']] = data[['State_Florida', 'State_New York']].astype(int)
+
+y = data['Profit'].values
+X = data.drop('Profit', axis=1).values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+pca = PCA(n_components=3)
+X_train = pca.fit_transform(X_train)
+X_test = pca.transform(X_test)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+print("Startups Score:", model.score(X_test, y_test))
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_curve
+
+ship = pd.read_csv("https://raw.githubusercontent.com/datasciencedojo/datasets/refs/heads/master/titanic.csv")
+
+ship['Age'] = ship['Age'].fillna(ship['Age'].mean())
+ship['Sex'] = ship['Sex'].map({"male": 0, "female": 1})
+ship['family'] = ship['Parch'] + ship['SibSp']
+
+ship.drop(['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked', 'Parch', 'SibSp'], axis=1, inplace=True)
+
+y = ship['Survived'].values
+X = ship.drop('Survived', axis=1).values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+model = DecisionTreeClassifier()
+model.fit(X_train, y_train)
+
+positive_probabilities = model.predict_proba(X_test)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_test, positive_probabilities)
+
+plt.plot(fpr, tpr)
+plt.title("Titanic ROC Curve")
+plt.show()
+
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+
+X, _ = make_blobs(n_samples=2000, n_features=2, centers=[[2,10], [7,12]])
+
+model = KMeans(n_clusters=2)
+labels = model.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=labels)
+plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], marker='x', s=30, c='red')
+plt.title("K-Means Clustering")
+plt.show()
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+data = pd.read_csv('Fuel_Cost.csv')
+data.dropna(inplace=True)
+
+sns.heatmap(data.corr(), annot=True)
+plt.title("Fuel Cost Correlation")
+plt.show()
+
+y = data['CO2EMISSIONS']
+X_full = data.drop('CO2EMISSIONS', axis=1)
+
+X_sm = sm.add_constant(X_full)
+model_sm = sm.OLS(y, X_sm).fit()
+
+fig = plt.figure(figsize=(10, 10))
+sm.graphics.plot_partregress_grid(model_sm, fig=fig)
+plt.show()
+
+X = data[['ENGINESIZE', 'CYLINDERS', 'FUELCONSUMPTION_COMB']]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Fuel_Cost Train score:", model.score(X_train, y_train))
+print("Fuel_Cost Test score:", model.score(X_test, y_test))
+
+y_pred = model.predict(X_test)
+print("Fuel_Cost MAE:", mean_absolute_error(y_test, y_pred))
+print("Fuel_Cost RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
+
+plt.scatter(y_test, y_pred)
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--')
+plt.xlabel('Actual')
+plt.ylabel('Predicted')
+plt.title('Actual vs Predicted CO2 Emissions')
+plt.show()
+
+
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+estate = pd.read_csv("estate.csv")
+estate.drop("No", axis=1, inplace=True)
+estate.columns = ["transact", "age", "distance", "stores", "latitude", 'longitude', 'price']
+
+estate['transact'] = pd.to_datetime(estate['transact'])
+estate['transact_age'] = 2026 - estate['transact'].dt.year
+estate.drop(["transact"], axis=1, inplace=True)
+
+sns.heatmap(estate.corr(), annot=True)
+plt.title("Estate Correlation")
+plt.show()
+
+plt.scatter(estate['latitude'], estate['longitude'])
+plt.title("Estate Latitude vs Longitude")
+plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+data = pd.read_csv("Salary_2026.csv")
+X = data[['YearsExperience']]
+y = data['Salary']
+
+model = LinearRegression()
+model.fit(X, y)
+y_predicted = model.predict(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+model2 = LinearRegression()
+model2.fit(X_train, y_train)
+
+y_predicted_test = model2.predict(X_test)
+print("Salary MSE:", mean_squared_error(y_test, y_predicted_test))
+print("Salary Score:", model2.score(X_test, y_test))
+
+plt.scatter(x=data['YearsExperience'], y=data['Salary'])
+plt.plot(X, y_predicted, color='red')
+plt.xlabel('Years Experience')
+plt.ylabel('Salary')
+plt.title('Salary vs Experience')
+plt.show()
+
+sns.heatmap(data.corr(), annot=True)
+plt.title("Salary Correlation")
+plt.show()
