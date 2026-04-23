@@ -1,0 +1,27 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+
+data = pd.read_csv("50_Startups.csv")
+
+data = pd.get_dummies(data=data, columns=['State'], drop_first=True)
+data[['State_Florida', 'State_New York']] = data[['State_Florida', 'State_New York']].astype(int)
+
+y = data['Profit'].values
+X = data.drop('Profit', axis=1).values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+pca = PCA(n_components=3)
+X_train = pca.fit_transform(X_train)
+X_test = pca.transform(X_test)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+print(model.score(X_test, y_test))
