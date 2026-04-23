@@ -1,0 +1,30 @@
+
+
+
+
+
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+
+data = pd.read_csv("Student_Performance.csv")
+
+data.groupby("Extracurricular Activities")['Performance Index'].mean().plot(kind='bar')
+plt.show()
+
+sns.heatmap(data=data.corr(), annot=True)
+plt.show()
+
+data.drop('Extracurricular Activities', axis=1, inplace=True)
+
+y = data['Performance Index']
+X = data[['Hours Studied', 'Previous Scores']]
+
+X_sm = sm.add_constant(X)
+model = sm.OLS(y, X_sm).fit()
+
+fig = plt.figure(figsize=(10, 10))
+sm.graphics.plot_partregress_grid(model, fig=fig)
+plt.show()
