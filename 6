@@ -1,0 +1,17 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+estate = pd.read_csv("estate.csv")
+estate.drop("No", axis=1, inplace=True)
+estate.columns = ["transact", "age", "distance", "stores", "latitude", 'longitude', 'price']
+
+estate['transact'] = pd.to_datetime(estate['transact'])
+estate['transact_age'] = 2026 - estate['transact'].dt.year
+estate.drop(["transact"], axis=1, inplace=True)
+
+sns.heatmap(estate.corr(), annot=True)
+plt.show()
+
+plt.scatter(estate['latitude'], estate['longitude'])
+plt.show()
